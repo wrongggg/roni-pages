@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>clipWorkflowRequest — 90 Day Analysis</title>
+<title>clipWorkflowRequest â 90 Day Analysis</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -23,11 +23,6 @@
   .section-title { font-size: 16px; font-weight: 500; margin: 2.5rem 0 1rem; }
   .chart-wrap { background: #fff; border-radius: 12px; border: 0.5px solid rgba(0,0,0,0.08); padding: 1.5rem; margin-bottom: 2.5rem; }
   .chart-container { position: relative; width: 100%; height: 440px; }
-  .insight-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin-bottom: 2.5rem; }
-  .insight-card { background: #fff; border-radius: 10px; padding: 1rem 1.25rem; border: 0.5px solid rgba(0,0,0,0.08); }
-  .insight-card h3 { font-size: 14px; font-weight: 500; margin-bottom: 6px; }
-  .insight-card p { font-size: 13px; color: #5f5e5a; }
-  .insight-num { font-size: 20px; font-weight: 500; margin-bottom: 2px; }
   .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 1rem; }
   .tab {
     font-size: 12px; padding: 6px 14px; border-radius: 8px; cursor: pointer;
@@ -77,8 +72,8 @@
 </head>
 <body>
 <div class="container">
-  <h1>clipWorkflowRequest — what users are asking for</h1>
-  <p class="subtitle">90-day analysis of free-text requests submitted via the clip workflow prompt &middot; Feb 2 – May 3, 2026</p>
+  <h1>clipWorkflowRequest â what users are asking for</h1>
+  <p class="subtitle">90-day analysis of free-text requests submitted via the clip workflow prompt &middot; Feb 2 â May 3, 2026</p>
 
   <div class="metrics">
     <div class="metric-card">
@@ -106,30 +101,6 @@
     </div>
   </div>
 
-  <div class="section-title">Key insights</div>
-  <div class="insight-grid">
-    <div class="insight-card">
-      <div class="insight-num" style="color:#E24B4A;">11</div>
-      <h3>Show notes complaints</h3>
-      <p>Users can’t find show notes after a UI change. “Where did the show notes section go?” is a recurring theme — this is a regression, not a feature gap.</p>
-    </div>
-    <div class="insight-card">
-      <div class="insight-num" style="color:#D85A30;">26</div>
-      <h3>Speaker-specific clips</h3>
-      <p>“Only the guest,” “only the host,” “clips of [name]” — users want control over who appears. Our magic clips don’t support this well.</p>
-    </div>
-    <div class="insight-card">
-      <div class="insight-num" style="color:#378ADD;">20</div>
-      <h3>Captions are polarizing</h3>
-      <p>Split between “add captions automatically” and “stop adding them.” Both sides are frustrated. Better defaults + easy toggle needed.</p>
-    </div>
-    <div class="insight-card">
-      <div class="insight-num" style="color:#888780;">3+</div>
-      <h3>Disable auto-generation</h3>
-      <p>Some power users actively don’t want magic content generated — it slows their experience and wastes resources. They want on-demand, not always-on.</p>
-    </div>
-  </div>
-
   <div class="section-title">All requests</div>
   <div class="tabs" id="tabs"></div>
   <input type="text" class="search-input" id="search" placeholder="Search requests..." />
@@ -154,7 +125,7 @@ const categories = [
       {t:"I'd like a workflow that creates 3 min clips at the max",c:1},
       {t:"I'd love a workflow that allows me to create sixty second clips for social media",c:1},
       {t:"CREATE 30-40 SECOND SHORT CLIP HIGHLIGHTS",c:1},
-      {t:"I would like clips that are 45 seconds or less \u2014 no weird pauses or moments that don't add up",c:1},
+      {t:"I would like clips that are 45 seconds or less â no weird pauses or moments that don't add up",c:1},
       {t:"I'd love a 30-45 second clip, no longer than a minute that shows snappy hooks and one liners",c:1},
       {t:"I want a hook or magic clip that is only 10-12 secs long",c:1},
       {t:"60 second hooks with the best possible moments, laughter, serious etc in landscape format",c:1},
@@ -198,8 +169,8 @@ const categories = [
       {t:"A way to regenerate magic clips, and I'd like TikTok shorts generated that hook people",c:1},
       {t:"I'd love to auto generate a mini version of the episode (25% of the recording, just the highlights)",c:1},
       {t:"Create a 3-minute highlight recap using the most valuable insights",c:1},
-      {t:"Love an overview video 30 secs to 1 min \u2014 fast transition through highlights",c:1},
-      {t:"I'd love mashup clips \u2014 various clips mashed into a 3-5 min clip to promote the episode",c:1},
+      {t:"Love an overview video 30 secs to 1 min â fast transition through highlights",c:1},
+      {t:"I'd love mashup clips â various clips mashed into a 3-5 min clip to promote the episode",c:1},
       {t:"a 2 minute clip that summarises everything thats talked about in the video",c:1},
       {t:"I wish i could duplicate the magic episode and divide it into 2 or 3 parts",c:1},
       {t:"i need 15, 60 mins clip",c:1},
@@ -254,7 +225,7 @@ const categories = [
       {t:"show notes and timestamps",c:1},
       {t:"show notes, tags",c:1},
       {t:"I'd like show notes with a summary of the discussion and URLs mentioned",c:1},
-      {t:"Create Two sets of Show Notes \u2014 One for each half of the conversation",c:1},
+      {t:"Create Two sets of Show Notes â One for each half of the conversation",c:1},
       {t:"create show notes that include time stamps for each subject. create blog post for each upload",c:1},
       {t:"I would really like to see show notes generated for every recording",c:1},
       {t:"Podcast descriptions with takeaways, highlights, and chapters",c:1},
@@ -342,12 +313,12 @@ const categories = [
       {t:"I want the option to add the same type of caption automatically to every magic clip",c:1},
       {t:"When automating vertical clips, I'd love the ability to toggle captions individually",c:1},
       {t:"place captions automatically with font size L, green and blue highlight, placed at 65% height",c:1},
-      {t:"le sous titre doit s'afficher en haut de l'\u00e9cran en noir et blanc police montserrat medium",c:1},
+      {t:"le sous titre doit s'afficher en haut de l'Ã©cran en noir et blanc police montserrat medium",c:1},
       {t:"Personalized grid and personalized subtitles for all magic clips",c:2},
       {t:"caption in my style",c:1},
       {t:"Create sub titles in french (audio is in english) or english (audio is in french)",c:1},
       {t:"I would like to automatically add the chinese caption on all the clips",c:1},
-      {t:"subtitulos en espa\u00f1ol",c:1},
+      {t:"subtitulos en espaÃ±ol",c:1},
       {t:"no captions",c:1},
       {t:"I do not want any captions",c:1},
       {t:"The captions are automatically added and I do not like that",c:1}
@@ -357,7 +328,7 @@ const categories = [
     name: "Branding / templates", color: "#D4537E", count: 18,
     items: [
       {t:"I need a workflow for shorts, where I can template the use of the brand, keywords, etc.",c:1},
-      {t:"I'd like a way to apply partial branding \u2014 like only subtitles, only intro, etc.",c:1},
+      {t:"I'd like a way to apply partial branding â like only subtitles, only intro, etc.",c:1},
       {t:"Any Brand colors need to be Purple and Green",c:1},
       {t:"Clips that pull in with all branding but not the intro/outro",c:1},
       {t:"I would love to easily add standardized & customizable Intros/Outros to every Clip/Hook/Segment",c:1},
@@ -373,7 +344,7 @@ const categories = [
       {t:"You are my executive video producer... Analyze this podcast and turn it into a content engine",c:1},
       {t:"Clip with specific structure inspired by Caleb Ralston's content framework",c:1},
       {t:"Id like to add the video additions i added as well",c:1},
-      {t:"gostaria de cortes na propor\u00e7\u00e3o 9:16 com dura\u00e7\u00e3o de at\u00e9 1 minuto (Portuguese \u2014 with style specs)",c:1}
+      {t:"gostaria de cortes na proporÃ§Ã£o 9:16 com duraÃ§Ã£o de atÃ© 1 minuto (Portuguese â with style specs)",c:1}
     ]
   },
   {
@@ -404,7 +375,7 @@ const categories = [
       {t:"I'd love a workflow that created an episode intro/hook using multiple clips from the recording",c:1},
       {t:"I'd love to add a workflow that adds a header at the beginning with a 60-90 second social clip",c:1},
       {t:"Intro of top moments of the podcast",c:1},
-      {t:"Love an overview video 30 secs to 1 min \u2014 fast transition through highlights",c:1},
+      {t:"Love an overview video 30 secs to 1 min â fast transition through highlights",c:1},
       {t:"I am a True Crime youtube creator",c:1},
       {t:"Testimonial",c:1},
       {t:"Create a testimonial video of how Counselfi transformed speaker 2's business",c:1}
@@ -449,12 +420,12 @@ const categories = [
       {t:"only moments of laughter",c:1},
       {t:"1 minute of laughter",c:1},
       {t:"laughing",c:1},
-      {t:"i want short clips that focus on funny stuff \u2014 laughing, energy, or yelling",c:1},
+      {t:"i want short clips that focus on funny stuff â laughing, energy, or yelling",c:1},
       {t:"I would love a quick video of us yelling in debate",c:1},
       {t:"hooks of 20-30 seconds about topics of insecurity in business, and celebrating business",c:1},
       {t:"Creating clips related to a certain topic (e.g. D&D character discussion)",c:1},
       {t:"get a short clip with these highlight words: 'foundation' / 'boring daily' / 'intensity'...",c:1},
-      {t:"i want a wrap up \u2014 sneak peak on the top topics of the podcast",c:1},
+      {t:"i want a wrap up â sneak peak on the top topics of the podcast",c:1},
       {t:"Breakdown the questions and answers as a segment",c:1},
       {t:"Clips which include our questions from quizifying",c:1},
       {t:"Id love a workflow to extract b-roll: body posture, exclaiming, talking with hands, laughing",c:1},
@@ -468,7 +439,7 @@ const categories = [
     name: "Feature requests / other", color: "#888780", count: 42,
     items: [
       {t:"Just a way to prevent generating magic episodes/clips automatically. Creates loading time",c:1},
-      {t:"I'd love the option to turn off all magic made for you assets \u2014 they slow the interface",c:1},
+      {t:"I'd love the option to turn off all magic made for you assets â they slow the interface",c:1},
       {t:"I would love the ability to disable the generation of Magic Clips",c:1},
       {t:"Bulk scheduling of magic clips to social platforms",c:1},
       {t:"OMG! Yes, I want to use an MCP to push videos to my publishing tool or CRM",c:1},
@@ -493,7 +464,7 @@ const categories = [
       {t:"for spotify",c:1},
       {t:"If possible: connection to Canva or better editing options for Reels",c:1},
       {t:"I'd love a workflow that created hook clips with captions for tiktok, youtube shorts and instagram. Also transcript and SRT is a pain",c:1},
-      {t:"I love them but they do not spread throughout \u2014 youtube needs us to post at least once a day",c:1},
+      {t:"I love them but they do not spread throughout â youtube needs us to post at least once a day",c:1},
       {t:"I'd love a workflow to edit the episode down to a specific time range 30-45 mins",c:1},
       {t:"Ads 9:16 and 16:9 to be used in ads campaigns",c:1},
       {t:"uplord pictures",c:1},
@@ -502,11 +473,11 @@ const categories = [
       {t:"claude design",c:1},
       {t:"down",c:1},
       {t:"123",c:1},
-      {t:"Hebrew \u2014 only from panel, Hebrew subtitles",c:1},
+      {t:"×× × ×¨××¦× ×©×× ×××× ×¨×§ ××¢××¨××ª (Hebrew â only from panel, Hebrew subtitles)",c:1},
       {t:"I'l love if you can make an Arabic Transcript please",c:1},
       {t:"espanol",c:1},
       {t:"So I do recognize that, yes, all this has come from a place of privilege...",c:1},
-      {t:"I'd like a way to apply partial branding \u2014 like only subtitles, only intro, etc.",c:1},
+      {t:"I'd like a way to apply partial branding â like only subtitles, only intro, etc.",c:1},
       {t:"I'd love to have a library of custom clipping prompts for different content pillars",c:1},
       {t:"I love them but they are not working right now",c:1}
     ]
@@ -620,6 +591,6 @@ function renderList() {
 
 searchEl.addEventListener('input', renderList);
 renderList();
-<\/script>
-<\/body>
-<\/html>
+</script>
+</body>
+</html>
