@@ -14,18 +14,32 @@
         .page-list li { border-bottom: 1px solid #1a1a1a; }
         .page-list a { display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; color: #e0e0e0; text-decoration: none; transition: color 0.15s; }
         .page-list a:hover { color: #fff; }
-        .page-list .name { font-weight: 500; }
-        .page-list .date { color: #555; font-size: 0.85rem; }
+        .page-list .name { font-weight: 500; text-transform: capitalize; }
         .empty { color: #555; font-style: italic; padding: 2rem 0; }
+        .loading { color: #555; padding: 2rem 0; }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Pages</h1>
         <p class="subtitle">Shared docs and reports</p>
-        <ul class="page-list">
-            <li class="empty">No pages yet. Deploy your first HTML file.</li>
+        <ul class="page-list" id="pageList">
+            <li class="loading">Loading...</li>
         </ul>
     </div>
+    <script>
+        fetch('https://api.github.com/repos/wrongggg/roni-pages/contents/')
+            .then(r => r.json())
+            .then(files => {
+                const htmlFiles = files.filter(f => f.name.endsWith('.html') && f.name !== 'index.html').sort((a, b) => a.name.localeCompare(b.name));
+                const list = document.getElementById('pageList');
+                if (htmlFiles.length === 0) { list.innerHTML = '<li class="empty">No pages yet.</li>'; return; }
+                list.innerHTML = htmlFiles.map(f => {
+                    const name = f.name.replace('.html', '').replace(/[-_]/g, ' ');
+                    return '<li><a href="' + f.name + '"><span class="name">' + name + '</span></a></li>';
+                }).join('');
+            })
+            .catch(() => { document.getElementById('pageList').innerHTML = '<li class="empty">Could not load pages. Try refreshing.</li>'; });
+    </script>
 </body>
 </html>
