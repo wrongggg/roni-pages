@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>clipWorkflowRequest — 90 Day Analysis</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f8f7f4;
+    color: #2c2c2a;
+    line-height: 1.6;
+  }
+  .container { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+  h1 { font-size: 22px; font-weight: 500; margin-bottom: 4px; }
+  .subtitle { font-size: 14px; color: #5f5e5a; margin-bottom: 2rem; }
+  .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 2.5rem; }
+  .metric-card { background: #fff; border-radius: 10px; padding: 1rem 1.25rem; border: 0.5px solid rgba(0,0,0,0.08); }
+  .metric-label { font-size: 12px; color: #888780; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .metric-value { font-size: 28px; font-weight: 500; }
+  .section-title { font-size: 16px; font-weight: 500; margin: 2.5rem 0 1rem; }
+  .chart-wrap { background: #fff; border-radius: 12px; border: 0.5px solid rgba(0,0,0,0.08); padding: 1.5rem; margin-bottom: 2.5rem; }
+  .chart-container { position: relative; width: 100%; height: 440px; }
+  .insight-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin-bottom: 2.5rem; }
+  .insight-card { background: #fff; border-radius: 10px; padding: 1rem 1.25rem; border: 0.5px solid rgba(0,0,0,0.08); }
+  .insight-card h3 { font-size: 14px; font-weight: 500; margin-bottom: 6px; }
+  .insight-card p { font-size: 13px; color: #5f5e5a; }
+  .insight-num { font-size: 20px; font-weight: 500; margin-bottom: 2px; }
+  .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 1rem; }
+  .tab {
+    font-size: 12px; padding: 6px 14px; border-radius: 8px; cursor: pointer;
+    border: 0.5px solid rgba(0,0,0,0.15); background: #fff; color: #5f5e5a;
+    transition: all 0.15s;
+  }
+  .tab:hover { border-color: rgba(0,0,0,0.3); }
+  .tab.active { color: #2c2c2a; font-weight: 500; }
+  .search-input {
+    width: 100%; padding: 10px 14px; border-radius: 8px; font-size: 14px;
+    border: 0.5px solid rgba(0,0,0,0.15); background: #fff; margin-bottom: 1rem;
+    outline: none; transition: border-color 0.15s;
+  }
+  .search-input:focus { border-color: rgba(0,0,0,0.3); }
+  .list-wrap { background: #fff; border-radius: 12px; border: 0.5px solid rgba(0,0,0,0.08); overflow: hidden; }
+  .list-item {
+    padding: 10px 16px; border-bottom: 0.5px solid rgba(0,0,0,0.06);
+    display: flex; align-items: flex-start; gap: 12px; font-size: 13px;
+  }
+  .list-item:last-child { border-bottom: none; }
+  .list-text { flex: 1; line-height: 1.5; }
+  .tag {
+    font-size: 11px; padding: 2px 10px; border-radius: 6px;
+    white-space: nowrap; flex-shrink: 0;
+  }
+  .count-badge {
+    font-size: 11px; padding: 2px 8px; border-radius: 6px;
+    white-space: nowrap; flex-shrink: 0; background: #E6F1FB; color: #185FA5;
+  }
+  .list-footer { padding: 12px 16px; font-size: 12px; color: #888780; text-align: center; }
+  .empty { padding: 3rem; text-align: center; color: #888780; font-size: 14px; }
+  .source { font-size: 12px; color: #888780; margin-top: 2rem; padding-top: 1rem; border-top: 0.5px solid rgba(0,0,0,0.08); }
+  @media (prefers-color-scheme: dark) {
+    body { background: #1a1a1a; color: #d3d1c7; }
+    .metric-card, .chart-wrap, .insight-card, .list-wrap, .tab, .search-input { background: #252523; border-color: rgba(255,255,255,0.1); }
+    .metric-label { color: #888780; }
+    .subtitle, .insight-card p { color: #b4b2a9; }
+    .search-input { color: #d3d1c7; }
+    .search-input:focus { border-color: rgba(255,255,255,0.25); }
+    .tab { border-color: rgba(255,255,255,0.12); color: #b4b2a9; }
+    .tab:hover { border-color: rgba(255,255,255,0.25); }
+    .tab.active { color: #d3d1c7; }
+    .list-item { border-bottom-color: rgba(255,255,255,0.06); }
+    .source { border-top-color: rgba(255,255,255,0.08); color: #888780; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>clipWorkflowRequest — what users are asking for</h1>
+  <p class="subtitle">90-day analysis of free-text requests submitted via the clip workflow prompt &middot; Feb 2 – May 3, 2026</p>
+
+  <div class="metrics">
+    <div class="metric-card">
+      <div class="metric-label">Total requests</div>
+      <div class="metric-value">325</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Unique texts</div>
+      <div class="metric-value">281</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Categories</div>
+      <div class="metric-value">12</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Last 30d share</div>
+      <div class="metric-value">48%</div>
+    </div>
+  </div>
+
+  <div class="section-title">Requests by category</div>
+  <div class="chart-wrap">
+    <div class="chart-container">
+      <canvas id="catChart" role="img" aria-label="Horizontal bar chart of request categories by volume"></canvas>
+    </div>
+  </div>
+
+  <div class="section-title">Key insights</div>
+  <div class="insight-grid">
+    <div class="insight-card">
+      <div class="insight-num" style="color:#E24B4A;">11</div>
+      <h3>Show notes complaints</h3>
+      <p>Users can’t find show notes after a UI change. “Where did the show notes section go?” is a recurring theme — this is a regression, not a feature gap.</p>
+    </div>
+    <div class="insight-card">
+      <div class="insight-num" style="color:#D85A30;">26</div>
+      <h3>Speaker-specific clips</h3>
+      <p>“Only the guest,” “only the host,” “clips of [name]” — users want control over who appears. Our magic clips don’t support this well.</p>
+    </div>
+    <div class="insight-card">
+      <div class="insight-num" style="color:#378ADD;">20</div>
+      <h3>Captions are polarizing</h3>
+      <p>Split between “add captions automatically” and “stop adding them.” Both sides are frustrated. Better defaults + easy toggle needed.</p>
+    </div>
+    <div class="insight-card">
+      <div class="insight-num" style="color:#888780;">3+</div>
+      <h3>Disable auto-generation</h3>
+      <p>Some power users actively don’t want magic content generated — it slows their experience and wastes resources. They want on-demand, not always-on.</p>
+    </div>
+  </div>
+
+  <div class="section-title">All requests</div>
+  <div class="tabs" id="tabs"></div>
+  <input type="text" class="search-input" id="search" placeholder="Search requests..." />
+  <div class="list-wrap" id="list"></div>
+
+  <p class="source">Source: Mixpanel, Production analytics &middot; Event: clipWorkflowRequest, property: text &middot; Date range: last 90 days</p>
+</div>
+
+<script>
+const categories = [
+  {
+    name: "Clips (short-form)", color: "#534AB7", count: 89,
+    items: [
+      {t:"i would like a workflow that makes short viral clips of under 60 seconds out of each 5 minute clip",c:1},
+      {t:"I'd love a work flow with clips usually 45 seconds to one minute and a half",c:1},
+      {t:"I'd love a workflow that created a max 35-second clip teaser with the most catchy part of the episode",c:1},
+      {t:"30 seconds cut with hook",c:2},
+      {t:"Create 3 to 4 30 second clips that have the highest chance and potential to go viral",c:1},
+      {t:"I'd love a workflow at 1:1 ratio under 15 seconds",c:1},
+      {t:"30 SECOND CLIPS",c:1},
+      {t:"Short 30-second clips.",c:1},
+      {t:"I'd like a workflow that creates 3 min clips at the max",c:1},
+      {t:"I'd love a workflow that allows me to create sixty second clips for social media",c:1},
+      {t:"CREATE 30-40 SECOND SHORT CLIP HIGHLIGHTS",c:1},
+      {t:"I would like clips that are 45 seconds or less \u2014 no weird pauses or moments that don't add up",c:1},
+      {t:"I'd love a 30-45 second clip, no longer than a minute that shows snappy hooks and one liners",c:1},
+      {t:"I want a hook or magic clip that is only 10-12 secs long",c:1},
+      {t:"60 second hooks with the best possible moments, laughter, serious etc in landscape format",c:1},
+      {t:"60 second preview",c:1},
+      {t:"I'd love to have 10 clips from each episode that are 40 seconds or less, with text content for posts",c:1},
+      {t:"I want you to create at least 12 magic clips per recording based on the most interesting sections",c:2},
+      {t:"I'd love to see a collection of one liners, like 5 seconds long that are funny outtakes for social media",c:1},
+      {t:"Would like an option to have videos edited to 30 seconds",c:1},
+      {t:"clips that are 30-60 seconds that will get a lot of views with a good hook. Engagement in first 3 seconds",c:1},
+      {t:"I'd like to create 15-20 second hook clips of sequential portions of the video",c:1},
+      {t:"For each episode, I want 3-4 short clips (1-3 min) that use my branding that I can easily edit",c:1},
+      {t:"I want 10 clips of 50sec each about the usage of AI in healthcare. Only the guest, smart layout",c:1},
+      {t:"Id like a workflow where we generate videos between 20-40 seconds long with a lot of value. Over 20 per session",c:1},
+      {t:"more hooks",c:1},
+      {t:"Magic Hooks",c:1},
+      {t:"Clips",c:2},
+      {t:"Reels",c:2},
+      {t:"Reels, being able to string multiple parts of the episode together in 1 15-30 second clip",c:1},
+      {t:"Create clips for instagram and youtube reels. 15 to 30 seconds",c:1},
+      {t:"love the hooks. but need more",c:1},
+      {t:"I'd love magic clip shorter",c:1},
+      {t:"Load once and you make hooks, shorts, reels etc. and have them go everywhere",c:2},
+      {t:"Can you make more magic segments?",c:1},
+      {t:"Make a Magic Segment, Three to five minutes",c:1},
+      {t:"I want the ability to generate more magic segments. It seems the AI does it once and won't continue",c:1},
+      {t:"a 5-7 minute clip that flows really well",c:1},
+      {t:"I would love a workflow of clips that are a minute long and highlight different sections/subjects",c:1},
+      {t:"find and make clips for reels and tiktoks. make segment videos for youtube",c:1},
+      {t:"would like 30-50 second clips regarding some of the absurdities of the episode",c:1},
+      {t:"youtube shorts",c:1},
+      {t:"time picker for shorts ie 10-15, 15-30, 30-45, etc",c:1},
+      {t:"Id love a work flow that created 1 min clips with captions already on them suitable for my brand",c:1},
+      {t:"30-45 second clips of advice from Venice Moore on tips",c:1},
+      {t:"I need more magic clips made I only liked 2 of the ones presented to me",c:1},
+      {t:"Create custom clips on Podcast #5",c:1},
+      {t:"I'd like a workflow that takes best/most engaging moments and puts them into 30 second-1 minute clips",c:1},
+      {t:"number of magic clips",c:1},
+      {t:"I'd love a workflow that created a 1-2 min clip combining the different clips uploaded",c:1},
+      {t:"give me something new i havent seen yet",c:1},
+      {t:"I would like some new clips that i havent seen",c:1},
+      {t:"A way to regenerate magic clips, and I'd like TikTok shorts generated that hook people",c:1},
+      {t:"I'd love to auto generate a mini version of the episode (25% of the recording, just the highlights)",c:1},
+      {t:"Create a 3-minute highlight recap using the most valuable insights",c:1},
+      {t:"Love an overview video 30 secs to 1 min \u2014 fast transition through highlights",c:1},
+      {t:"I'd love mashup clips \u2014 various clips mashed into a 3-5 min clip to promote the episode",c:1},
+      {t:"a 2 minute clip that summarises everything thats talked about in the video",c:1},
+      {t:"I wish i could duplicate the magic episode and divide it into 2 or 3 parts",c:1},
+      {t:"i need 15, 60 mins clip",c:1},
+      {t:"I would like short clips that create coherent text or topics. Nothing incomplete",c:1},
+      {t:"Create a 30-minute magic episode that follows a hero's journey narrative, starts with a hook",c:1},
+      {t:"same thing as a magic episode but without the smart mute",c:1},
+      {t:"make a magic episode using takes 2 and 3",c:1},
+      {t:"30-35 second clips featuring Rose Hamilton",c:1},
+      {t:"Podcast ready video",c:1},
+      {t:"Create 3 Magic Episodes for Michelle from Podcast #6",c:1},
+      {t:"Magic segments of 10-15 minutes",c:1},
+      {t:"longform audio of several clips stitched together",c:1},
+      {t:"i want a workflow that makes the audio even for both speakers with 1-5 min clips",c:1},
+      {t:"Magic audio clips",c:1},
+      {t:"stories",c:1},
+      {t:"I'd love to have a library of custom clipping prompts for different content pillars",c:1},
+      {t:"Choosing a specific edited video to then create hooks, magic clips, magic segments etc from",c:1},
+      {t:"be able to request new edits from more recent recordings, not the first unedited recording",c:1},
+      {t:"I would like it if Magic options used my final edit video, not the unedited upload",c:1},
+      {t:"I'd like to pre-define what timestamps I want to be clipped from the transcript",c:1},
+      {t:"I'd love a workflow that allows me to manually indicate specific transcript segments by timecode",c:1},
+      {t:"Podcast clips with specific timestamps (1:56-2:57, 4:01-4:24, etc.)",c:1},
+      {t:"make a magic segment from time frame of 8 min 39 second till 10 mins 56 seconds",c:1},
+      {t:"Start of the Assessment: Trim from 00:15 to 00:25. Answering Questions: 1:12 to 2:06...",c:1},
+      {t:"i'd like a clip of Lisa's second marriage to Burke, a hook that is 30 seconds or less",c:1},
+      {t:"a clip of guest Jean talking about when he suggested adding Jessica to the band",c:1},
+      {t:"find a 30 second clip talking about allergens",c:1},
+      {t:"i want clip of us talking about wink",c:1},
+      {t:"Create a reel that talks about leadership",c:1},
+      {t:"30 sec audio only highlights from episode",c:1},
+      {t:"I need a workflow that can create four episodes from one conversation",c:1},
+      {t:"pote island 1v1",c:2}
+    ]
+  },
+  {
+    name: "Show notes / summaries", color: "#1D9E75", count: 55,
+    items: [
+      {t:"show notes",c:9},
+      {t:"Show notes",c:6},
+      {t:"Show Notes",c:1},
+      {t:"SHOW NOTES",c:1},
+      {t:"Shownotes",c:1},
+      {t:"shownotes",c:1},
+      {t:"generate show notes",c:1},
+      {t:"add shownote generation",c:1},
+      {t:"Magic Show Notes",c:1},
+      {t:"Please can I have shownotes for this episode",c:1},
+      {t:"Show Notes to use as the Podcast Description",c:1},
+      {t:"Show Notes optimized for Spotify and YouTube",c:1},
+      {t:"Please make show notes along with magic episodes",c:1},
+      {t:"Always make show notes with time stamps, quotes, and keywords",c:1},
+      {t:"show notes and timestamps",c:1},
+      {t:"show notes, tags",c:1},
+      {t:"I'd like show notes with a summary of the discussion and URLs mentioned",c:1},
+      {t:"Create Two sets of Show Notes \u2014 One for each half of the conversation",c:1},
+      {t:"create show notes that include time stamps for each subject. create blog post for each upload",c:1},
+      {t:"I would really like to see show notes generated for every recording",c:1},
+      {t:"Podcast descriptions with takeaways, highlights, and chapters",c:1},
+      {t:"Summary of the episode",c:1},
+      {t:"summary",c:2},
+      {t:"episode summary",c:1},
+      {t:"Synopsis",c:1},
+      {t:"I would like to have the summary of the podcast episode",c:1},
+      {t:"Create a summary of the episode for the podcast feed",c:1},
+      {t:"Develop a 3-5 sentence Episode summary and key words for SEO",c:1},
+      {t:"keywords",c:1},
+      {t:"Suggested Title",c:1},
+      {t:"Need chapters",c:1},
+      {t:"Chapters and description",c:1},
+      {t:"Timestamps",c:1},
+      {t:"Key Takeaways from the episode in dot points",c:1},
+      {t:"I'd like to have takeaways too and not only key topics",c:1},
+      {t:"give me a description",c:1},
+      {t:"Make a youtube description to summarize the episode",c:1},
+      {t:"AI NOTES",c:1},
+      {t:"I want to be able to see the AI generated summary for each recording edit",c:1},
+      {t:"i want a title for this as a podcast and a description for it",c:1},
+      {t:"Find a 3-5 word quote from the transcript to use as text in a thumbnail",c:1},
+      {t:"Transcripts",c:1},
+      {t:"Episode transcript",c:1}
+    ]
+  },
+  {
+    name: "Show notes complaints", color: "#E24B4A", count: 11,
+    items: [
+      {t:"It's very hard to find a simple show note breakdown after a recent update, please bring back",c:1},
+      {t:"Where did the show notes section go? That was my most used feature :-(",c:1},
+      {t:"Show notes and keywords back where they used to be, please!",c:1},
+      {t:"The video summary with title and timestamp was really useful. I would bring that back",c:1},
+      {t:"I liked the customized show notes that used to be in this section. Much more accurate",c:1},
+      {t:"Hey it was super helpful to have the AI generated show notes right when you go to the episode",c:1},
+      {t:"Do you still have the text, the episode description, the time stamps?",c:1},
+      {t:"I'd love to have keywords and summaries to copy and paste. They used to be here but I can't find them",c:1},
+      {t:"I miss the summary, keywords, and suggested titles. It was a good jump start",c:1},
+      {t:"shownotes more easily accessible",c:1},
+      {t:"I'd love to be able to generate magic show notes without having to generate a fully edited video",c:1}
+    ]
+  },
+  {
+    name: "Speaker-specific clips", color: "#D85A30", count: 26,
+    items: [
+      {t:"Do you have magic clips of just the guest?",c:2},
+      {t:"We need to be able to direct clips to pull specific speakers",c:1},
+      {t:"Id like to have clips created for each speaker",c:1},
+      {t:"I want to be able to get magic clips from just one participant",c:1},
+      {t:"I want to see magic clips from the other speaker",c:1},
+      {t:"Magic Clips focused when the host (me) is speaking",c:1},
+      {t:"make some clips and hooks featuring me the host",c:1},
+      {t:"make some segments featuring the host",c:1},
+      {t:"faith speaking only",c:1},
+      {t:"clips of hue speaking",c:1},
+      {t:"only show the speaker for the magic clips",c:1},
+      {t:"an option to only have one participant in the edit",c:1},
+      {t:"magic clips or segments of just one person from the video",c:1},
+      {t:"make individual clips for each person on the show",c:1},
+      {t:"I need a new series of clips that feature skywalker tom but dont feature him speaking",c:1},
+      {t:"Highlight Quinn more. Start clip with Quinn's question",c:1},
+      {t:"Focus on Ben and the insight from Ben",c:1},
+      {t:"Create 10 viral moments from David Schwarz",c:1},
+      {t:"Create a magic clip of Sanibel speaking about parasocial relationships",c:1},
+      {t:"clips of me reacting to Niall Horan + my opinion at the end",c:1},
+      {t:"i want a short vertical video including my video reaction to Niall's song",c:1},
+      {t:"I want 10 clips of 50sec each about AI in healthcare. Only the guest, no Garry",c:1},
+      {t:"I want to create a 20-30 second clip with the guest talking about the turnaround",c:1},
+      {t:"Why are all these magic clips focused on me instead of my guest?",c:1},
+      {t:"get clips of Guy pointing or writing on his white board",c:1},
+      {t:"snapshots need to have both guest and host",c:1}
+    ]
+  },
+  {
+    name: "Captions / subtitles", color: "#378ADD", count: 20,
+    items: [
+      {t:"Add captions to All clips",c:1},
+      {t:"Add captions",c:1},
+      {t:"Captions",c:1},
+      {t:"Auto-generated captions",c:1},
+      {t:"Add Hook and captions automatically to magic clips",c:1},
+      {t:"I'd love captions to automatically land on the magic clips and hooks",c:1},
+      {t:"i just want captions on my hooks! HOW",c:1},
+      {t:"I want the option to add the same type of caption automatically to every magic clip",c:1},
+      {t:"When automating vertical clips, I'd love the ability to toggle captions individually",c:1},
+      {t:"place captions automatically with font size L, green and blue highlight, placed at 65% height",c:1},
+      {t:"le sous titre doit s'afficher en haut de l'\u00e9cran en noir et blanc police montserrat medium",c:1},
+      {t:"Personalized grid and personalized subtitles for all magic clips",c:2},
+      {t:"caption in my style",c:1},
+      {t:"Create sub titles in french (audio is in english) or english (audio is in french)",c:1},
+      {t:"I would like to automatically add the chinese caption on all the clips",c:1},
+      {t:"subtitulos en espa\u00f1ol",c:1},
+      {t:"no captions",c:1},
+      {t:"I do not want any captions",c:1},
+      {t:"The captions are automatically added and I do not like that",c:1}
+    ]
+  },
+  {
+    name: "Branding / templates", color: "#D4537E", count: 18,
+    items: [
+      {t:"I need a workflow for shorts, where I can template the use of the brand, keywords, etc.",c:1},
+      {t:"I'd like a way to apply partial branding \u2014 like only subtitles, only intro, etc.",c:1},
+      {t:"Any Brand colors need to be Purple and Green",c:1},
+      {t:"Clips that pull in with all branding but not the intro/outro",c:1},
+      {t:"I would love to easily add standardized & customizable Intros/Outros to every Clip/Hook/Segment",c:1},
+      {t:"allow for prerecorded subscribe or opening/closing segments autoadded to magic clips",c:1},
+      {t:"The ability to put my intro or outro clips onto a group of videos. Or apply the same music",c:1},
+      {t:"I would love the ability for my music intros to be added with the same leveling and transitions",c:1},
+      {t:"I would like a workflow that automatically adds my common actions to all hooks/clips",c:1},
+      {t:"I'd love the ability to have a Diary Of a CEO introduction BROLL with AI overlays",c:1},
+      {t:"i want every tiktok or reel video to include the logo in the layout",c:1},
+      {t:"I want to create short episodes with broll, images, all branded. Like an 8-10 min episode",c:1},
+      {t:"You are editing 60-second reels for a video business coach... (detailed production prompt)",c:1},
+      {t:"BTP RIVERSIDE SOLO SESSION PROMPT (detailed production prompt for solo show)",c:1},
+      {t:"You are my executive video producer... Analyze this podcast and turn it into a content engine",c:1},
+      {t:"Clip with specific structure inspired by Caleb Ralston's content framework",c:1},
+      {t:"Id like to add the video additions i added as well",c:1},
+      {t:"gostaria de cortes na propor\u00e7\u00e3o 9:16 com dura\u00e7\u00e3o de at\u00e9 1 minuto (Portuguese \u2014 with style specs)",c:1}
+    ]
+  },
+  {
+    name: "Thumbnails / snapshots", color: "#BA7517", count: 13,
+    items: [
+      {t:"can i import a thumbnail",c:2},
+      {t:"add a thumbnail",c:1},
+      {t:"I want thumbnail-ready snapshots without titles",c:1},
+      {t:"can you make a workflow to generate a YT thumbnail for the main podcast and the longer clips?",c:1},
+      {t:"Generate and add a thumbnail to the beginning of a video",c:1},
+      {t:"thumbnail for this episode",c:1},
+      {t:"I need a thumbnail for Episode 104",c:1},
+      {t:"I need thumbnails",c:1},
+      {t:"Thumbnails for Youtube that feature three vertical clips on the image",c:1},
+      {t:"create videos with thumbnail automatically",c:1},
+      {t:"Thumbnale",c:1},
+      {t:"I would love some still snapshots",c:1}
+    ]
+  },
+  {
+    name: "Trailers / teasers", color: "#639922", count: 12,
+    items: [
+      {t:"I need a trailer/preview for youtube podcast, 30 secs is more than enough",c:1},
+      {t:"Can you detect good clips and make a trailer",c:1},
+      {t:"I'd love a workflow that creates a trailer for my podcast episode, in my brand, with b-roll",c:1},
+      {t:"I'd love a workflow that creates a 1min-1min30sec trailer pulling buzzy sentences as a teaser",c:1},
+      {t:"Create a 90 second to 2 min clip I can use as an intro for the interview",c:1},
+      {t:"I'd love a workflow that created an episode intro/hook using multiple clips from the recording",c:1},
+      {t:"I'd love to add a workflow that adds a header at the beginning with a 60-90 second social clip",c:1},
+      {t:"Intro of top moments of the podcast",c:1},
+      {t:"Love an overview video 30 secs to 1 min \u2014 fast transition through highlights",c:1},
+      {t:"I am a True Crime youtube creator",c:1},
+      {t:"Testimonial",c:1},
+      {t:"Create a testimonial video of how Counselfi transformed speaker 2's business",c:1}
+    ]
+  },
+  {
+    name: "Blog / written content", color: "#5DCAA5", count: 14,
+    items: [
+      {t:"can you create a blog for this episode",c:1},
+      {t:"Blog posts / Insta post contents",c:1},
+      {t:"Blog posts derived from the interview",c:1},
+      {t:"create a youtube video caption",c:1},
+      {t:"Youtube Post descriptions",c:1},
+      {t:"Create three captions for three instagram posts for this episode",c:1},
+      {t:"I'd love a workflow for captions/descriptions for YouTube",c:1},
+      {t:"Make a youtube description to summarize the episode",c:1},
+      {t:"Facebook and substack",c:1},
+      {t:"Create clips reflecting the Ideas on Stage podcast theme",c:1},
+      {t:"I'd love a workflow that creates a short 16:9 video with hook, Instagram caption with CTA, and YouTube shorts title",c:1},
+      {t:"I would love to turn my Podcast or Video into a Course Module with interactive abilities",c:1},
+      {t:"create show notes that include time stamps. create blog post for each upload",c:1},
+      {t:"Develop a 3-5 sentence Episode summary and key words for SEO",c:1}
+    ]
+  },
+  {
+    name: "Music / audio", color: "#85B7EB", count: 9,
+    items: [
+      {t:"I would like you to automatically add background music. Reflective, calm, piano",c:1},
+      {t:"kindly add catchy sound music background in the clips, make it low and match with the clip",c:1},
+      {t:"If possible to automatically add music on magic clips?",c:1},
+      {t:"audio normalization in magic clips seems unavailable? matching the level between guests?",c:1},
+      {t:"Get Count Drahoon's audio to match the others",c:1},
+      {t:"i want a workflow that makes the audio even for both speakers",c:1},
+      {t:"I would like clips of the songs played prioritizing how the song sounded",c:1},
+      {t:"I would love the ability for my music intros to be added with the same leveling",c:1},
+      {t:"Blooper reels with bleep sound between cuts",c:1}
+    ]
+  },
+  {
+    name: "Topic / moment clips", color: "#7F77DD", count: 16,
+    items: [
+      {t:"only moments of laughter",c:1},
+      {t:"1 minute of laughter",c:1},
+      {t:"laughing",c:1},
+      {t:"i want short clips that focus on funny stuff \u2014 laughing, energy, or yelling",c:1},
+      {t:"I would love a quick video of us yelling in debate",c:1},
+      {t:"hooks of 20-30 seconds about topics of insecurity in business, and celebrating business",c:1},
+      {t:"Creating clips related to a certain topic (e.g. D&D character discussion)",c:1},
+      {t:"get a short clip with these highlight words: 'foundation' / 'boring daily' / 'intensity'...",c:1},
+      {t:"i want a wrap up \u2014 sneak peak on the top topics of the podcast",c:1},
+      {t:"Breakdown the questions and answers as a segment",c:1},
+      {t:"Clips which include our questions from quizifying",c:1},
+      {t:"Id love a workflow to extract b-roll: body posture, exclaiming, talking with hands, laughing",c:1},
+      {t:"bloopers",c:1},
+      {t:"Identify and extract the strongest thought leadership moments from each speaker",c:1},
+      {t:"I'd love give prompts in magic clips feature so I can identify best moments",c:1},
+      {t:"Faith is the vehicle to the promise, visual... (detailed keynote-based clip request)",c:1}
+    ]
+  },
+  {
+    name: "Feature requests / other", color: "#888780", count: 42,
+    items: [
+      {t:"Just a way to prevent generating magic episodes/clips automatically. Creates loading time",c:1},
+      {t:"I'd love the option to turn off all magic made for you assets \u2014 they slow the interface",c:1},
+      {t:"I would love the ability to disable the generation of Magic Clips",c:1},
+      {t:"Bulk scheduling of magic clips to social platforms",c:1},
+      {t:"OMG! Yes, I want to use an MCP to push videos to my publishing tool or CRM",c:1},
+      {t:"I'd love a workflow that allows me to prompt co creator with a prompt from my AI editor... OR an MCP connection",c:1},
+      {t:"eye contact feature for magic clips",c:1},
+      {t:"make her eyes stay on the camera",c:1},
+      {t:"touch up appearance, blemish removal, or a beauty filter. Also some LUT's",c:1},
+      {t:"Changing the background after the recording if you forgot to mask it",c:1},
+      {t:"I'd like a workflow to add simple transitions to my shorts",c:1},
+      {t:"can you create a visual animation of the slides, transition in and out from speaker to slides",c:1},
+      {t:"create 2d animations based on topics",c:1},
+      {t:"Can you add audiowaves matching the audio?",c:1},
+      {t:"Give me a one-minute slow-motion video, no talking. Take all the audio out",c:1},
+      {t:"remove the 'you know' fillers",c:1},
+      {t:"I would like the opportunity to add filler words or phrases to be removed, like 'You Know'",c:1},
+      {t:"i would like control of when to delete filter words",c:1},
+      {t:"Edit this video in a simple and clean style. Remove pauses, mistakes, filler words",c:1},
+      {t:"Transcript to polish language, based on that, do whole editing, delete pauses",c:1},
+      {t:"please create a video of the first 45 seconds of the original recording",c:1},
+      {t:"Create a video where the speaker is profiled and non speakers are on the right hand side",c:1},
+      {t:"Mass export magic clips / Hooks / Segments / Episodes",c:1},
+      {t:"for spotify",c:1},
+      {t:"If possible: connection to Canva or better editing options for Reels",c:1},
+      {t:"I'd love a workflow that created hook clips with captions for tiktok, youtube shorts and instagram. Also transcript and SRT is a pain",c:1},
+      {t:"I love them but they do not spread throughout \u2014 youtube needs us to post at least once a day",c:1},
+      {t:"I'd love a workflow to edit the episode down to a specific time range 30-45 mins",c:1},
+      {t:"Ads 9:16 and 16:9 to be used in ads campaigns",c:1},
+      {t:"uplord pictures",c:1},
+      {t:"Build something great for me!",c:1},
+      {t:"Text :)",c:1},
+      {t:"claude design",c:1},
+      {t:"down",c:1},
+      {t:"123",c:1},
+      {t:"Hebrew \u2014 only from panel, Hebrew subtitles",c:1},
+      {t:"I'l love if you can make an Arabic Transcript please",c:1},
+      {t:"espanol",c:1},
+      {t:"So I do recognize that, yes, all this has come from a place of privilege...",c:1},
+      {t:"I'd like a way to apply partial branding \u2014 like only subtitles, only intro, etc.",c:1},
+      {t:"I'd love to have a library of custom clipping prompts for different content pillars",c:1},
+      {t:"I love them but they are not working right now",c:1}
+    ]
+  }
+];
+
+const isDark = matchMedia('(prefers-color-scheme: dark)').matches;
+
+new Chart(document.getElementById('catChart'), {
+  type: 'bar',
+  data: {
+    labels: categories.map(c => c.name),
+    datasets: [{
+      data: categories.map(c => c.count),
+      backgroundColor: categories.map(c => c.color + '88'),
+      borderColor: categories.map(c => c.color),
+      borderWidth: 1,
+      borderRadius: 4,
+      barThickness: 26
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: ctx => ctx.raw + ' requests (' + Math.round(ctx.raw / 325 * 100) + '%)'
+        }
+      }
+    },
+    scales: {
+      x: {
+        grid: { color: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)' },
+        ticks: { color: isDark ? '#b4b2a9' : '#5f5e5a', font: { size: 12 } }
+      },
+      y: {
+        grid: { display: false },
+        ticks: { color: isDark ? '#d3d1c7' : '#444441', font: { size: 12 } }
+      }
+    }
+  }
+});
+
+let activeTab = null;
+const tabsEl = document.getElementById('tabs');
+const listEl = document.getElementById('list');
+const searchEl = document.getElementById('search');
+
+const allBtn = document.createElement('button');
+allBtn.className = 'tab active';
+allBtn.textContent = 'All (325)';
+allBtn.addEventListener('click', () => { activeTab = null; renderTabs(); renderList(); });
+tabsEl.appendChild(allBtn);
+
+categories.forEach((cat, i) => {
+  const btn = document.createElement('button');
+  btn.className = 'tab';
+  btn.textContent = cat.name + ' (' + cat.count + ')';
+  btn.addEventListener('click', () => { activeTab = activeTab === i ? null : i; renderTabs(); renderList(); });
+  tabsEl.appendChild(btn);
+});
+
+function renderTabs() {
+  Array.from(tabsEl.children).forEach((btn, i) => {
+    if (i === 0) {
+      btn.className = activeTab === null ? 'tab active' : 'tab';
+      btn.style.background = activeTab === null ? (isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)') : '';
+      return;
+    }
+    const ci = i - 1;
+    if (ci === activeTab) {
+      btn.className = 'tab active';
+      btn.style.background = categories[ci].color + '18';
+      btn.style.borderColor = categories[ci].color;
+    } else {
+      btn.className = 'tab';
+      btn.style.background = '';
+      btn.style.borderColor = '';
+    }
+  });
+}
+
+function renderList() {
+  const filter = (searchEl.value || '').toLowerCase();
+  let items = [];
+  if (activeTab !== null) {
+    categories[activeTab].items.forEach(it => items.push({ text: it.t, count: it.c, cat: categories[activeTab].name, color: categories[activeTab].color }));
+  } else {
+    categories.forEach(cat => {
+      cat.items.forEach(it => items.push({ text: it.t, count: it.c, cat: cat.name, color: cat.color }));
+    });
+  }
+  if (filter) items = items.filter(it => it.text.toLowerCase().includes(filter) || it.cat.toLowerCase().includes(filter));
+
+  if (items.length === 0) {
+    listEl.innerHTML = '<div class="empty">No matching requests</div>';
+    return;
+  }
+
+  listEl.innerHTML = items.map(it =>
+    '<div class="list-item">' +
+      '<span class="list-text">' + it.text + '</span>' +
+      (it.count > 1 ? '<span class="count-badge">x' + it.count + '</span>' : '') +
+      '<span class="tag" style="background:' + it.color + '14;color:' + it.color + ';">' + it.cat.split('(')[0].split('/')[0].trim() + '</span>' +
+    '</div>'
+  ).join('');
+}
+
+searchEl.addEventListener('input', renderList);
+renderList();
+<\/script>
+<\/body>
+<\/html>
