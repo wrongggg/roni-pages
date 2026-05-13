@@ -10,7 +10,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .container { max-width: 800px; margin: 0 auto; }
 h1 { font-size: 22px; font-weight: 600; margin-bottom: 4px; }
 .subtitle { font-size: 14px; color: #666; margin-bottom: 2rem; }
-.cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 2rem; }
+.cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 2rem; }
 .card { background: #fff; border-radius: 10px; padding: 1rem; text-align: center; border: 1px solid #e8e8e8; }
 .card-label { font-size: 12px; color: #888; margin-bottom: 4px; }
 .card-value { font-size: 24px; font-weight: 600; }
@@ -43,10 +43,9 @@ tr.best td { background: #f0faf6; font-weight: 600; }
 <p class="subtitle">Riverside music library replacement | May 2026</p>
 
 <div class="cards">
-<div class="card"><div class="card-label">Current raw</div><div class="card-value">112K</div><div class="card-unit">/month</div></div>
-<div class="card highlight"><div class="card-label">Current smart</div><div class="card-value">90K</div><div class="card-unit">/month</div></div>
-<div class="card"><div class="card-label">Growth raw</div><div class="card-value">180K</div><div class="card-unit">/month</div></div>
-<div class="card highlight"><div class="card-label">Growth smart</div><div class="card-value">150K</div><div class="card-unit">/month</div></div>
+<div class="card"><div class="card-label">Current smart</div><div class="card-value">90K</div><div class="card-unit">/month</div></div>
+<div class="card"><div class="card-label">Growth smart (music + SFX)</div><div class="card-value">150K</div><div class="card-unit">/month</div></div>
+<div class="card highlight"><div class="card-label">Growth smart (music only)</div><div class="card-value">108K</div><div class="card-unit">/month</div></div>
 </div>
 
 <div class="legend">
@@ -55,7 +54,7 @@ tr.best td { background: #f0faf6; font-weight: 600; }
 <span><span class="dot" style="background:rgba(128,128,128,0.2);"></span>Pricing tier thresholds</span>
 </div>
 <div class="chart-wrap">
-<canvas id="cdnChart" role="img" aria-label="Bar chart showing annual CDN calls across 4 scenarios vs Soundstripe pricing tiers"></canvas>
+<canvas id="cdnChart" role="img" aria-label="Bar chart showing annual CDN calls across scenarios vs Soundstripe pricing tiers"></canvas>
 </div>
 
 <div class="section">
@@ -89,11 +88,15 @@ tr.best td { background: #f0faf6; font-weight: 600; }
 <table>
 <tr><th>Scenario</th><th style="text-align:right">Monthly</th><th style="text-align:right">Annual</th><th>Tier</th><th style="text-align:right">Est. cost</th></tr>
 <tr><td>Current raw</td><td class="num">112K</td><td class="num">1.34M</td><td>$37.5K (1.5M)</td><td class="num">$37,500</td></tr>
-<tr class="best"><td>Current smart <span class="tag tag-green">recommended</span></td><td class="num">90K</td><td class="num">1.08M</td><td>$37.5K (1.5M)</td><td class="num">$37,500</td></tr>
-<tr><td>Growth raw <span class="tag tag-red">avoid</span></td><td class="num">180K</td><td class="num">2.16M</td><td>$37.5K (1.5M) + overage</td><td class="num">~$54,000</td></tr>
-<tr><td>Growth smart <span class="tag tag-green">target</span></td><td class="num">150K</td><td class="num">1.80M</td><td>$37.5K (1.5M) + overage</td><td class="num">~$45,000</td></tr>
+<tr><td>Current smart</td><td class="num">90K</td><td class="num">1.08M</td><td>$37.5K (1.5M)</td><td class="num">$37,500</td></tr>
+<tr><td colspan="5" style="background:#f4f4f4; font-weight:600; font-size:12px; color:#888;">With growth: music + SFX</td></tr>
+<tr><td>Growth raw (music + SFX) <span class="tag tag-red">avoid</span></td><td class="num">180K</td><td class="num">2.16M</td><td>$37.5K (1.5M) + overage</td><td class="num">~$54,000</td></tr>
+<tr><td>Growth smart (music + SFX)</td><td class="num">150K</td><td class="num">1.80M</td><td>$37.5K (1.5M) + overage</td><td class="num">~$45,000</td></tr>
+<tr><td colspan="5" style="background:#f4f4f4; font-weight:600; font-size:12px; color:#888;">With growth: music only (no SFX)</td></tr>
+<tr><td>Growth raw (music only)</td><td class="num">134K</td><td class="num">1.61M</td><td>$37.5K (1.5M) + overage</td><td class="num">~$40,250</td></tr>
+<tr class="best"><td>Growth smart (music only) <span class="tag tag-green">sweet spot</span></td><td class="num">108K</td><td class="num">1.30M</td><td>$37.5K (1.5M)</td><td class="num">$37,500</td></tr>
 </table>
-<p style="margin-top: 12px;"><strong>Bottom line:</strong> Session-only caching is less impactful than persistent caching would be. Current usage fits the $37.5K tier comfortably. With growth (music + SFX), we'd exceed the 1.5M cap and pay ~$7.5K in overage. The $37.5K tier is likely our landing zone either way. For reference, we currently pay $20K/year for BlueDot.</p>
+<p style="margin-top: 12px;"><strong>Bottom line:</strong> Without SFX, growth stays inside the $37.5K tier with no overage. With SFX, we'd exceed the cap by ~300K calls and pay ~$7.5K extra. The question is whether SFX justifies that ~$7.5K/year. For reference, we currently pay $20K/year for BlueDot.</p>
 </div>
 
 <div class="section">
@@ -126,10 +129,10 @@ const tiers = [
 new Chart(document.getElementById('cdnChart'), {
   type: 'bar',
   data: {
-    labels: ['Current', 'With growth'],
+    labels: ['Current', 'Growth (music + SFX)', 'Growth (music only)'],
     datasets: [
-      { label: 'Raw', data: [1344000, 2160000], backgroundColor: '#E24B4A', borderRadius: 4, barPercentage: 0.7, categoryPercentage: 0.6 },
-      { label: 'Smart', data: [1080000, 1800000], backgroundColor: '#1D9E75', borderRadius: 4, barPercentage: 0.7, categoryPercentage: 0.6 }
+      { label: 'Raw', data: [1344000, 2160000, 1608000], backgroundColor: '#E24B4A', borderRadius: 4, barPercentage: 0.7, categoryPercentage: 0.6 },
+      { label: 'Smart', data: [1080000, 1800000, 1296000], backgroundColor: '#1D9E75', borderRadius: 4, barPercentage: 0.7, categoryPercentage: 0.6 }
     ]
   },
   options: {
