@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Soundstripe CDN Usage Estimate - Riverside</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8f9fa; color: #1c1c1c; line-height: 1.6; padding: 2rem; }
+.container { max-width: 800px; margin: 0 auto; }
+h1 { font-size: 22px; font-weight: 600; margin-bottom: 4px; }
+.subtitle { font-size: 14px; color: #666; margin-bottom: 2rem; }
+.cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 2rem; }
+.card { background: #fff; border-radius: 10px; padding: 1rem; text-align: center; border: 1px solid #e8e8e8; }
+.card-label { font-size: 12px; color: #888; margin-bottom: 4px; }
+.card-value { font-size: 24px; font-weight: 600; }
+.card-unit { font-size: 11px; color: #aaa; }
+.card.highlight { border-color: #1D9E75; background: #f0faf6; }
+.legend { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 8px; font-size: 12px; color: #888; }
+.legend span { display: flex; align-items: center; gap: 4px; }
+.legend .dot { width: 10px; height: 10px; border-radius: 2px; }
+.chart-wrap { position: relative; width: 100%; height: 360px; background: #fff; border-radius: 10px; border: 1px solid #e8e8e8; padding: 1rem; }
+.section { background: #fff; border-radius: 10px; border: 1px solid #e8e8e8; padding: 1.25rem; margin-top: 12px; }
+.section h2 { font-size: 15px; font-weight: 600; margin-bottom: 12px; }
+.section p { font-size: 13px; color: #555; margin-bottom: 8px; }
+.section p:last-child { margin-bottom: 0; }
+.section strong { color: #1c1c1c; font-weight: 600; }
+table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 13px; }
+th { text-align: left; padding: 8px 12px; background: #f4f4f4; font-weight: 600; border-bottom: 1px solid #e0e0e0; }
+td { padding: 8px 12px; border-bottom: 1px solid #eee; }
+td.num { text-align: right; font-variant-numeric: tabular-nums; }
+tr.best td { background: #f0faf6; font-weight: 600; }
+.tag { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 4px; margin-left: 6px; }
+.tag-green { background: #e6f7ef; color: #0f6e56; }
+.tag-red { background: #fce8e8; color: #a32d2d; }
+.source { font-size: 12px; color: #aaa; margin-top: 2rem; text-align: center; }
+@media (max-width: 600px) { .cards { grid-template-columns: repeat(2, 1fr); } body { padding: 1rem; } }
+</style>
+</head>
+<body>
+<div class="container">
+<h1>Soundstripe CDN usage estimate</h1>
+<p class="subtitle">Riverside music library replacement | May 2026</p>
+
+<div class="cards">
+<div class="card"><div class="card-label">Current raw</div><div class="card-value">112K</div><div class="card-unit">/month</div></div>
+<div class="card highlight"><div class="card-label">Current smart</div><div class="card-value">90K</div><div class="card-unit">/month</div></div>
+<div class="card"><div class="card-label">Growth raw</div><div class="card-value">180K</div><div class="card-unit">/month</div></div>
+<div class="card highlight"><div class="card-label">Growth smart</div><div class="card-value">150K</div><div class="card-unit">/month</div></div>
+</div>
+
+<div class="legend">
+<span><span class="dot" style="background:#E24B4A;"></span>Raw (no caching)</span>
+<span><span class="dot" style="background:#1D9E75;"></span>Smart (with caching)</span>
+<span><span class="dot" style="background:rgba(128,128,128,0.2);"></span>Pricing tier thresholds</span>
+</div>
+<div class="chart-wrap">
+<canvas id="cdnChart" role="img" aria-label="Bar chart showing annual CDN calls across 4 scenarios vs Soundstripe pricing tiers"></canvas>
+</div>
+
+<div class="section">
+<h2>What "smart" means - session-level caching only</h2>
+<p style="color:#a32d2d; margin-bottom:12px;"><strong>Constraint:</strong> We cannot store Soundstripe tracks on our servers. Caching is limited to same-session only. Repeat adds across sessions (e.g. same intro every episode) require a fresh API call each time.</p>
+<p><strong>1. Cache preview to add (same session)</strong> - When a user previews a track and then adds it to their timeline in the same session, the file is already fetched. No second API call needed. Saves ~14K adds/month.</p>
+<p><strong>2. Cache repeat previews (same session)</strong> - When a user previews the same track multiple times while browsing in one session. Saves ~8K previews/month.</p>
+<p><strong>Total session-level savings: ~22K/month</strong> (vs ~54K with persistent caching).</p>
+</div>
+
+<div class="section">
+<h2>How we calculated this</h2>
+<p>Source: Mixpanel production data, last 30 days (BlueDot music library events).</p>
+<p><strong>Raw events:</strong> 64K preview clicks + 48K track adds = 112K total CDN calls/month if every action hits the API.</p>
+<p><strong>After session-level caching:</strong></p>
+<p>Previews: 64K raw - ~8K same-session repeat previews = <strong>~56K</strong></p>
+<p>Adds: 48K raw. Of those, ~14K follow a preview in the same session (already cached). Remaining ~34K adds require a fresh API call (includes all repeat adds across sessions, e.g. same intro track every episode).</p>
+<p>Net API calls: ~56K previews + ~34K adds = <strong>~90K/month</strong></p>
+<p style="color:#888; font-size:12px;">Note: 57% of users use just 1 track repeatedly. With persistent caching this would have saved ~25K calls/month, but the contract doesn't allow storing tracks.</p>
+</div>
+
+<div class="section">
+<h2>Growth assumptions</h2>
+<p><strong>Music usage growth:</strong> 20% increase from better library quality, improved search and filtering. 90K smart -> ~108K/month.</p>
+<p><strong>SFX adoption:</strong> New category. ~10K users estimated (conservative, based on ~20K total music users across BlueDot + in-house library today). SFX browsing is heavier on previews but fewer adds per user. ~45K CDN calls/month after session caching.</p>
+<p><strong>Combined growth estimate:</strong> 108K music + 45K SFX = <strong>~150K/month</strong> (smart). Raw without caching: ~180K/month.</p>
+</div>
+
+<div class="section">
+<h2>Cost impact by tier</h2>
+<table>
+<tr><th>Scenario</th><th style="text-align:right">Monthly</th><th style="text-align:right">Annual</th><th>Tier</th><th style="text-align:right">Est. cost</th></tr>
+<tr><td>Current raw</td><td class="num">112K</td><td class="num">1.34M</td><td>$37.5K (1.5M)</td><td class="num">$37,500</td></tr>
+<tr class="best"><td>Current smart <span class="tag tag-green">recommended</span></td><td class="num">90K</td><td class="num">1.08M</td><td>$37.5K (1.5M)</td><td class="num">$37,500</td></tr>
+<tr><td>Growth raw <span class="tag tag-red">avoid</span></td><td class="num">180K</td><td class="num">2.16M</td><td>$37.5K (1.5M) + overage</td><td class="num">~$54,000</td></tr>
+<tr><td>Growth smart <span class="tag tag-green">target</span></td><td class="num">150K</td><td class="num">1.80M</td><td>$37.5K (1.5M) + overage</td><td class="num">~$45,000</td></tr>
+</table>
+<p style="margin-top: 12px;"><strong>Bottom line:</strong> Session-only caching is less impactful than persistent caching would be. Current usage fits the $37.5K tier comfortably. With growth (music + SFX), we'd exceed the 1.5M cap and pay ~$7.5K in overage. The $37.5K tier is likely our landing zone either way. For reference, we currently pay $20K/year for BlueDot.</p>
+</div>
+
+<div class="section">
+<h2>Key data points from Mixpanel</h2>
+<table>
+<tr><th>Metric</th><th style="text-align:right">Value</th></tr>
+<tr><td>Monthly users adding BlueDot tracks</td><td class="num">~9,800</td></tr>
+<tr><td>Monthly users previewing BlueDot tracks</td><td class="num">~11,600</td></tr>
+<tr><td>Median unique tracks per user (adds, 30d)</td><td class="num">1</td></tr>
+<tr><td>Average adds per user per month</td><td class="num">5.1</td></tr>
+<tr><td>Average unique tracks per user (adds)</td><td class="num">2.4</td></tr>
+<tr><td>% of users who only use 1 track</td><td class="num">57%</td></tr>
+<tr><td>Preview-to-add conversion (session)</td><td class="num">71%</td></tr>
+<tr><td>Top track ("Borough") share of all adds</td><td class="num">13%</td></tr>
+</table>
+</div>
+
+<p class="source">Riverside editing team | Data from Mixpanel project 2935643 | May 2026</p>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const gridColor = 'rgba(0,0,0,0.06)';
+const textColor = 'rgba(0,0,0,0.5)';
+const tiers = [
+  { y: 125000, label: '$7.5K tier (125K)' },
+  { y: 562500, label: '$22.5K tier (562K)' },
+  { y: 1500000, label: '$37.5K tier (1.5M)' }
+];
+new Chart(document.getElementById('cdnChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Current', 'With growth'],
+    datasets: [
+      { label: 'Raw', data: [1344000, 2160000], backgroundColor: '#E24B4A', borderRadius: 4, barPercentage: 0.7, categoryPercentage: 0.6 },
+      { label: 'Smart', data: [1080000, 1800000], backgroundColor: '#1D9E75', borderRadius: 4, barPercentage: 0.7, categoryPercentage: 0.6 }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: function(ctx) { return ctx.dataset.label + ': ' + (ctx.raw / 1000000).toFixed(2) + 'M/year'; }
+        }
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        max: 2800000,
+        grid: { color: gridColor },
+        ticks: {
+          color: textColor,
+          font: { size: 11 },
+          callback: function(v) { return v >= 1000000 ? (v/1000000).toFixed(1) + 'M' : (v/1000) + 'K'; }
+        }
+      },
+      x: { grid: { display: false }, ticks: { color: textColor, font: { size: 13 } } }
+    }
+  },
+  plugins: [{
+    id: 'tierLines',
+    afterDraw(chart) {
+      const ctx = chart.ctx;
+      const yScale = chart.scales.y;
+      const xScale = chart.scales.x;
+      tiers.forEach(function(tier) {
+        if (tier.y > yScale.max) return;
+        const y = yScale.getPixelForValue(tier.y);
+        ctx.save();
+        ctx.setLineDash([4, 4]);
+        ctx.strokeStyle = 'rgba(0,0,0,0.15)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(xScale.left, y);
+        ctx.lineTo(xScale.right, y);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = textColor;
+        ctx.font = '11px sans-serif';
+        ctx.textAlign = 'right';
+        ctx.fillText(tier.label, xScale.right, y - 4);
+        ctx.restore();
+      });
+    }
+  }]
+});
+</script>
+</body>
+</html>
