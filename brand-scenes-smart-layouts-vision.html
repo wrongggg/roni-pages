@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brand Scenes & Smart Layouts Vision</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #0a0a0f;
+    color: #e0e0e8;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .header {
+    text-align: center;
+    padding: 60px 24px 20px;
+  }
+
+  .header h1 {
+    font-size: 2.4rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #a78bfa, #60a5fa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 12px;
+  }
+
+  .header p {
+    font-size: 1.05rem;
+    color: #8888a0;
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  .pipeline {
+    max-width: 1100px;
+    margin: 40px auto 60px;
+    padding: 0 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    position: relative;
+  }
+
+  /* Vertical connector line */
+  .connector {
+    width: 3px;
+    height: 40px;
+    background: linear-gradient(to bottom, rgba(167,139,250,0.4), rgba(96,165,250,0.4));
+    margin: 0 auto;
+    border-radius: 2px;
+  }
+
+  .connector-arrow {
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 10px solid rgba(96,165,250,0.4);
+    margin: -1px auto 0;
+  }
+
+  /* Stage cards */
+  .stage {
+    background: #13131d;
+    border: 1px solid #1e1e30;
+    border-radius: 16px;
+    padding: 32px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .stage::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    border-radius: 16px 16px 0 0;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .stage:hover, .stage.active {
+    border-color: #2a2a45;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  }
+
+  .stage:hover::before, .stage.active::before {
+    opacity: 1;
+  }
+
+  .stage-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 8px;
+  }
+
+  .stage-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    flex-shrink: 0;
+  }
+
+  .stage-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    opacity: 0.5;
+    margin-bottom: 2px;
+  }
+
+  .stage-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+
+  .stage-summary {
+    color: #8888a0;
+    font-size: 0.92rem;
+    line-height: 1.6;
+    margin-top: 8px;
+    padding-left: 58px;
+  }
+
+  .stage-detail {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease, padding 0.3s ease;
+    padding-left: 58px;
+  }
+
+  .stage.active .stage-detail {
+    max-height: 600px;
+    padding-top: 16px;
+  }
+
+  .stage-detail-inner {
+    border-top: 1px solid #1e1e30;
+    padding-top: 16px;
+  }
+
+  .detail-item {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: #b0b0c0;
+  }
+
+  .detail-bullet {
+    flex-shrink: 0;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    margin-top: 7px;
+  }
+
+  /* Foundation - brand scenes */
+  .stage-foundation::before { background: linear-gradient(90deg, #a78bfa, #c084fc); }
+  .stage-foundation .stage-icon { background: rgba(167,139,250,0.15); color: #a78bfa; }
+  .stage-foundation .detail-bullet { background: #a78bfa; }
+
+  /* Layer 1 */
+  .stage-layer1::before { background: linear-gradient(90deg, #60a5fa, #38bdf8); }
+  .stage-layer1 .stage-icon { background: rgba(96,165,250,0.15); color: #60a5fa; }
+  .stage-layer1 .detail-bullet { background: #60a5fa; }
+
+  /* Layer 2 */
+  .stage-layer2::before { background: linear-gradient(90deg, #34d399, #2dd4bf); }
+  .stage-layer2 .stage-icon { background: rgba(52,211,153,0.15); color: #34d399; }
+  .stage-layer2 .detail-bullet { background: #34d399; }
+
+  /* Layer 3 */
+  .stage-layer3::before { background: linear-gradient(90deg, #fbbf24, #f59e0b); }
+  .stage-layer3 .stage-icon { background: rgba(251,191,36,0.15); color: #fbbf24; }
+  .stage-layer3 .detail-bullet { background: #fbbf24; }
+
+  /* Edit phase */
+  .stage-edit::before { background: linear-gradient(90deg, #8888a0, #a0a0b8); }
+  .stage-edit .stage-icon { background: rgba(136,136,160,0.15); color: #8888a0; }
+  .stage-edit .detail-bullet { background: #8888a0; }
+
+  /* 2nd pass */
+  .stage-polish::before { background: linear-gradient(90deg, #f472b6, #e879f9); }
+  .stage-polish .stage-icon { background: rgba(244,114,182,0.15); color: #f472b6; }
+  .stage-polish .detail-bullet { background: #f472b6; }
+
+  /* Smart Layouts group */
+  .smart-layouts-group {
+    background: rgba(96,165,250,0.03);
+    border: 1px dashed #1e1e35;
+    border-radius: 20px;
+    padding: 24px 20px 20px;
+    position: relative;
+  }
+
+  .smart-layouts-label {
+    position: absolute;
+    top: -12px;
+    left: 32px;
+    background: #0a0a0f;
+    padding: 2px 14px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #60a5fa;
+  }
+
+  .smart-layouts-group .stage {
+    margin-bottom: 12px;
+  }
+
+  .smart-layouts-group .stage:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 20px 24px 50px;
+    color: #44445a;
+    font-size: 0.8rem;
+  }
+
+  .click-hint {
+    text-align: center;
+    color: #55556a;
+    font-size: 0.82rem;
+    margin-top: 8px;
+    margin-bottom: 20px;
+  }
+
+  /* Agent badge */
+  .agent-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(167,139,250,0.1);
+    border: 1px solid rgba(167,139,250,0.2);
+    border-radius: 6px;
+    padding: 3px 9px;
+    font-size: 0.75rem;
+    color: #a78bfa;
+    margin-top: 10px;
+  }
+
+  @media (max-width: 640px) {
+    .header h1 { font-size: 1.6rem; }
+    .stage { padding: 20px; }
+    .stage-summary, .stage-detail { padding-left: 0; }
+    .stage-icon { width: 36px; height: 36px; font-size: 1.1rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Brand Scenes & Smart Layouts</h1>
+  <p>Your brand, automated to produce output above anything else. From saved scenes to a polished final result.</p>
+</div>
+
+<p class="click-hint">Click each stage to explore</p>
+
+<div class="pipeline">
+
+  <!-- Brand Scenes -->
+  <div class="stage stage-foundation" onclick="toggle(this)">
+    <div class="stage-header">
+      <div class="stage-icon">ð¨</div>
+      <div>
+        <div class="stage-label">Foundation</div>
+        <div class="stage-title">Brand Scenes</div>
+      </div>
+    </div>
+    <div class="stage-summary">
+      Your designs, saved with context in your brand. The vocabulary the entire system uses to produce <em>your</em> content.
+    </div>
+    <div class="stage-detail">
+      <div class="stage-detail-inner">
+        <div class="detail-item"><span class="detail-bullet"></span><span>We already have saved scenes. Now we embed them in the brand with context, accessible to agents and automation.</span></div>
+        <div class="detail-item"><span class="detail-bullet"></span><span>A brand scene is a layout for a specific moment: quote card, subscribe CTA, single speaker, two speakers, opening shot, speaker name intro.</span></div>
+        <div class="detail-item"><span class="detail-bullet"></span><span>Once in your brand, these become the vocabulary agents and automation use. Not generic templates. <em>Your</em> designs.</span></div>
+        <div class="agent-badge">ð¤ Agents use brand scenes to design as YOU like</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="connector"></div>
+  <div class="connector-arrow"></div>
+
+  <!-- Smart Layouts Group -->
+  <div class="smart-layouts-group">
+    <div class="smart-layouts-label">Smart Layouts 10x</div>
+
+    <!-- Layer 1 -->
+    <div class="stage stage-layer1" onclick="toggle(this)">
+      <div class="stage-header">
+        <div class="stage-icon">ð</div>
+        <div>
+          <div class="stage-label">Layer 1</div>
+          <div class="stage-title">Your Brand on Smart Camera Switches</div>
+        </div>
+      </div>
+      <div class="stage-summary">
+        The same smart switching algorithm we have today, but now using your brand scenes. Same intelligence, your look.
+      </div>
+      <div class="stage-detail">
+        <div class="stage-detail-inner">
+          <div class="detail-item"><span class="detail-bullet"></span><span>Camera switches based on who's talking, screen sharing, and more - all using your saved scene designs.</span></div>
+          <div class="detail-item"><span class="detail-bullet"></span><span>Every edit automatically looks branded without any manual layout work.</span></div>
+          <div class="detail-item"><span class="detail-bullet"></span><span>This is the base layer. Everything above builds on top of it.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Layer 2 -->
+    <div class="stage stage-layer2" onclick="toggle(this)">
+      <div class="stage-header">
+        <div class="stage-icon">ð§ </div>
+        <div>
+          <div class="stage-label">Layer 2</div>
+          <div class="stage-title">AI Cues</div>
+        </div>
+      </div>
+      <div class="stage-summary">
+        AI NLP analyzes content and provides cues for smarter scene switches beyond what the base algorithm can do.
+      </div>
+      <div class="stage-detail">
+        <div class="stage-detail-inner">
+          <div class="detail-item"><span class="detail-bullet"></span><span>Topic switches detected - transition to a new scene.</span></div>
+          <div class="detail-item"><span class="detail-bullet"></span><span>Key quote identified - show a quote card scene.</span></div>
+          <div class="detail-item"><span class="detail-bullet"></span><span>Energy peaks, laughter, speaker dynamics - all inform layout decisions.</span></div>
+          <div class="detail-item"><span class="detail-bullet"></span><span>Adds creative intelligence on top of the deterministic base layer.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Layer 3 -->
+    <div class="stage stage-layer3" onclick="toggle(this)">
+      <div class="stage-header">
+        <div class="stage-icon">âï¸</div>
+        <div>
+          <div class="stage-label">Layer 3</div>
+          <div class="stage-title">Rules</div>
+        </div>
+      </div>
+      <div class="stage-summary">
+        User-configurable rules that add structure. Smart defaults provided, fully customizable.
+      </div>
+      <div class="stage-detail">
+        <div class="stage-detail-inner">
+          <div class="detail-item"><span class="detail-bullet"></span><span>At the beginning, show only grid</span></div>
+          <div class="detail-item"><span class="detail-bullet"></span><span>Speaker name scene at start, every time a speaker joins, once every 20 min</span></div>
+          <div class="detail-item"><span class="detail-bullet"></span><span>Good quote detected â show quote scene</span></div>
+          <div class="detail-item"><span class="detail-bullet"></span><span>Opening shot for the first 5 seconds</span></div>
+          <div class="detail-item"><span class="detail-bullet"></span><span>Lower thirds at speaker transitions</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="connector"></div>
+  <div class="connector-arrow"></div>
+
+  <!-- User Edits -->
+  <div class="stage stage-edit" onclick="toggle(this)">
+    <div class="stage-header">
+      <div class="stage-icon">âï¸</div>
+      <div>
+        <div class="stage-label">In Between</div>
+        <div class="stage-title">User Edits & Adds</div>
+      </div>
+    </div>
+    <div class="stage-summary">
+      Manual or with CoCreator. Eventually, we suggest and automate all of this too - you just review.
+    </div>
+    <div class="stage-detail">
+      <div class="stage-detail-inner">
+        <div class="detail-item"><span class="detail-bullet"></span><span>User adjusts the edit: cuts, adds B-roll, inserts graphics, tweaks pacing.</span></div>
+        <div class="detail-item"><span class="detail-bullet"></span><span>CoCreator can lead this step - using brand scenes as its design vocabulary.</span></div>
+        <div class="detail-item"><span class="detail-bullet"></span><span>Long-term vision: this step shrinks as automation and agents handle more. User reviews rather than builds.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="connector"></div>
+  <div class="connector-arrow"></div>
+
+  <!-- 2nd Pass -->
+  <div class="stage stage-polish" onclick="toggle(this)">
+    <div class="stage-header">
+      <div class="stage-icon">â¨</div>
+      <div>
+        <div class="stage-label">Final Stage</div>
+        <div class="stage-title">2nd Pass: Smooth & Polish</div>
+      </div>
+    </div>
+    <div class="stage-summary">
+      Editing done. A cleanup pass runs to output something amazing. Nobody else has this.
+    </div>
+    <div class="stage-detail">
+      <div class="stage-detail-inner">
+        <div class="detail-item"><span class="detail-bullet"></span><span><strong>Smoothing cuts</strong> - Morph frames across cuts so transitions are seamless. Video and audio.</span></div>
+        <div class="detail-item"><span class="detail-bullet"></span><span><strong>Camera switch / punch in</strong> - Where a straight cut doesn't work, switch angle or punch in.</span></div>
+        <div class="detail-item"><span class="detail-bullet"></span><span>AI smoothing already ready for production. Beefing up this stage with more smart power.</span></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  Riverside Editing Group - Cycle 5 Vision
+</div>
+
+<script>
+function toggle(el) {
+  const wasActive = el.classList.contains('active');
+  document.querySelectorAll('.stage').forEach(s => s.classList.remove('active'));
+  if (!wasActive) el.classList.add('active');
+}
+</script>
+
+</body>
+</html>
